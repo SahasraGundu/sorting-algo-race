@@ -44,18 +44,23 @@ async function startRace() {
 function createBars(id, arr) {
     const c = document.getElementById(id);
     c.innerHTML = "";
+
+    const max = Math.max(...arr);   // 🔑 scaling reference
+
     arr.forEach(v => {
         const b = document.createElement("div");
         b.className = "bar";
-        b.style.height = v * 10 + "px";
+        b.style.height = (v / max) * 120 + "px"; // 🔥 auto-scale
         b.innerText = v;
         c.appendChild(b);
     });
 }
 
 function updateBars(id, arr) {
+    const max = Math.max(...arr);
+
     [...document.getElementById(id).children].forEach((b, i) => {
-        b.style.height = arr[i] * 10 + "px";
+        b.style.height = (arr[i] / max) * 120 + "px";
         b.innerText = arr[i];
     });
 }
@@ -71,6 +76,11 @@ function explain(id, text) {
     document.getElementById(id + "Explain").innerText = text;
 }
 
+function showResult(id, algoName, timeTaken) {
+    const explainEl = document.getElementById(id + "Explain");
+    explainEl.innerText += `\n⏱ Time Taken: ${timeTaken.toFixed(1)} ms | ⚡ Complexity: ${complexities[id]}`;
+}
+
 /* ================= SORTS ================= */
 
 // ================= BUBBLE SORT =================
@@ -80,14 +90,26 @@ async function bubbleSort(arr) {
 
     for (let i = 0; i < arr.length; i++) {
         for (let j = 0; j < arr.length - i - 1; j++) {
-            explain("bubble", `Step: Compare indices ${j} and ${j+1}: [${arr.join(", ")}]`);
+
+            explain(
+                "bubble",
+                `🔴 Comparing index ${j} (${arr[j]}) and ${j+1} (${arr[j+1]}) 
+Array → [${arr.join(", ")}]`
+            );
+
             color("bubble", j, j + 1, "red");
             await controlledSleep();
 
             if (arr[j] > arr[j + 1]) {
                 [arr[j], arr[j + 1]] = [arr[j + 1], arr[j]];
                 updateBars("bubble", arr);
-                explain("bubble", `Swap ${arr[j+1]} and ${arr[j]} → New array: [${arr.join(", ")}]`);
+
+                explain(
+                    "bubble",
+                    `🟠 Swapped ${arr[j]} and ${arr[j+1]} 
+New Array → [${arr.join(", ")}]`
+                );
+
                 color("bubble", j, j + 1, "orange");
                 await controlledSleep();
             }
@@ -98,9 +120,16 @@ async function bubbleSort(arr) {
 
     [...document.getElementById("bubble").children].forEach(b => b.style.background = "green");
 
+    explain(
+        "bubble",
+        `🟢 Sorted Complete 
+Final Array → [${arr.join(", ")}]`
+    );
+
     let timeTaken = performance.now() - start;
     results["Bubble Sort"] = timeTaken;
-    explain("bubble", `Completed! Sorted Array: [${arr.join(", ")}] | Complexity: ${complexities["bubble"]} | Time: ${timeTaken.toFixed(1)} ms`);
+
+    showResult("bubble", "Bubble Sort", timeTaken);
 }
 
 // ================= SELECTION SORT =================
@@ -111,22 +140,32 @@ async function selectionSort(arr) {
     for (let i = 0; i < arr.length; i++) {
         let min = i;
         for (let j = i + 1; j < arr.length; j++) {
-            explain("selection", `Finding min from index ${i} to ${arr.length-1}: Current array: [${arr.join(", ")}], min=${arr[min]}`);
+            explain("selection", `🔴 Scanning for minimum from index ${i} 
+Array → [${arr.join(", ")}]`);
             color("selection", min, j, "red");
             await controlledSleep();
             if (arr[j] < arr[min]) min = j;
         }
         [arr[i], arr[min]] = [arr[min], arr[i]];
         updateBars("selection", arr);
-        explain("selection", `Swap index ${i} (${arr[min]}) with min index ${min} → New array: [${arr.join(", ")}]`);
+        explain(
+            "selection",
+            `🟠 Placed minimum ${arr[i]} at index ${i} 
+New Array → [${arr.join(", ")}]`
+        );
         await controlledSleep();
+
+        // ✅ Update progress
+        document.getElementById("selectionProg").style.width =
+            ((i + 1) / arr.length) * 100 + "%";
     }
 
     [...document.getElementById("selection").children].forEach(b => b.style.background = "green");
 
     let timeTaken = performance.now() - start;
     results["Selection Sort"] = timeTaken;
-    explain("selection", `Completed! Sorted Array: [${arr.join(", ")}] | Complexity: ${complexities["selection"]} | Time: ${timeTaken.toFixed(1)} ms`);
+
+    showResult("selection", "Selection Sort", timeTaken);
 }
 
 // ================= INSERTION SORT =================
@@ -136,31 +175,45 @@ async function insertionSort(arr) {
 
     for (let i = 1; i < arr.length; i++) {
         let key = arr[i], j = i - 1;
-        explain("insertion", `Insert key=${key} at index ${i} into sorted left part: [${arr.slice(0,i).join(", ")}]`);
+        explain("insertion", `🔴 Inserting key=${key} at index ${i} 
+Array → [${arr.join(", ")}]`);
         while (j >= 0 && arr[j] > key) {
             arr[j + 1] = arr[j];
             updateBars("insertion", arr);
-            explain("insertion", `Shift ${arr[j]} right → Array: [${arr.join(", ")}]`);
+            explain(
+                "insertion",
+                `🔴 Shifted ${arr[j]} right → Array: [${arr.join(", ")}]`
+            );
             await controlledSleep();
             j--;
         }
         arr[j + 1] = key;
         updateBars("insertion", arr);
-        explain("insertion", `Insert key=${key} at position ${j+1} → Array now: [${arr.join(", ")}]`);
+        explain(
+            "insertion",
+            `🟢 Inserted ${key} at position ${j+1} → Array now: [${arr.join(", ")}]`
+        );
         await controlledSleep();
+
+        // ✅ Update progress
+        document.getElementById("insertionProg").style.width =
+            ((i + 1) / arr.length) * 100 + "%";
     }
 
     [...document.getElementById("insertion").children].forEach(b => b.style.background = "green");
 
     let timeTaken = performance.now() - start;
     results["Insertion Sort"] = timeTaken;
-    explain("insertion", `Completed! Sorted Array: [${arr.join(", ")}] | Complexity: ${complexities["insertion"]} | Time: ${timeTaken.toFixed(1)} ms`);
+
+    showResult("insertion", "Insertion Sort", timeTaken);
 }
 
 // ================= MERGE SORT =================
 async function mergeSortMain(arr) {
     createBars("merge", arr);
     let start = performance.now();
+    let mergeSteps = 0;
+    const totalSteps = arr.length; // approximate total progress
 
     async function mergeSort(l, r) {
         if (l >= r) return;
@@ -168,7 +221,7 @@ async function mergeSortMain(arr) {
         await mergeSort(l, m);
         await mergeSort(m + 1, r);
 
-        explain("merge", `Merging subarrays [${arr.slice(l, m+1).join(", ")}] and [${arr.slice(m+1, r+1).join(", ")}]`);
+        explain("merge", `🔴 Merging subarrays [${arr.slice(l, m+1).join(", ")}] and [${arr.slice(m+1, r+1).join(", ")}]`);
         let temp = [], i = l, j = m + 1;
         while (i <= m && j <= r)
             temp.push(arr[i] < arr[j] ? arr[i++] : arr[j++]);
@@ -177,7 +230,11 @@ async function mergeSortMain(arr) {
 
         for (let k = l; k <= r; k++) arr[k] = temp[k - l];
         updateBars("merge", arr);
-        explain("merge", `After merging → Array: [${arr.join(", ")}]`);
+        explain("merge", `🟠 After merging → Array: [${arr.join(", ")}]`);
+
+        mergeSteps++;
+        document.getElementById("mergeProg").style.width =
+            Math.min((mergeSteps / totalSteps) * 100, 100) + "%";
         await controlledSleep();
     }
 
@@ -185,19 +242,27 @@ async function mergeSortMain(arr) {
 
     [...document.getElementById("merge").children].forEach(b => b.style.background = "green");
 
+    explain("merge", `🟢 Sorted Complete → Array: [${arr.join(", ")}]`);
+
     let timeTaken = performance.now() - start;
     results["Merge Sort"] = timeTaken;
-    explain("merge", `Completed! Sorted Array: [${arr.join(", ")}] | Complexity: ${complexities["merge"]} | Time: ${timeTaken.toFixed(1)} ms`);
+
+    showResult("merge", "Merge Sort", timeTaken);
 }
 
 // ================= QUICK SORT =================
 async function quickSortMain(arr) {
     createBars("quick", arr);
     let start = performance.now();
+    let quickSteps = 0;
+    const totalSteps = arr.length; // approximate total progress
 
     async function quickSort(l, h) {
         if (l < h) {
             let p = await partition(l, h);
+            quickSteps++;
+            document.getElementById("quickProg").style.width =
+                Math.min((quickSteps / totalSteps) * 100, 100) + "%";
             await quickSort(l, p - 1);
             await quickSort(p + 1, h);
         }
@@ -205,7 +270,7 @@ async function quickSortMain(arr) {
 
     async function partition(l, h) {
         let pivot = arr[h], i = l - 1;
-        explain("quick", `Pivot=${pivot} at index ${h} → Array: [${arr.join(", ")}]`);
+        explain("quick", `🔴 Pivot=${pivot} at index ${h} → Array: [${arr.join(", ")}]`);
         for (let j = l; j < h; j++) {
             color("quick", j, h, "red");
             await controlledSleep();
@@ -213,13 +278,13 @@ async function quickSortMain(arr) {
                 i++;
                 [arr[i], arr[j]] = [arr[j], arr[i]];
                 updateBars("quick", arr);
-                explain("quick", `Swap ${arr[i]} and ${arr[j]} → Array: [${arr.join(", ")}]`);
+                explain("quick", `🟠 Swapped ${arr[i]} and ${arr[j]} → Array: [${arr.join(", ")}]`);
                 await controlledSleep();
             }
         }
         [arr[i + 1], arr[h]] = [arr[h], arr[i + 1]];
         updateBars("quick", arr);
-        explain("quick", `Move pivot ${pivot} to index ${i+1} → Array: [${arr.join(", ")}]`);
+        explain("quick", `🟢 Pivot placed at index ${i+1} → Array: [${arr.join(", ")}]`);
         return i + 1;
     }
 
@@ -229,7 +294,8 @@ async function quickSortMain(arr) {
 
     let timeTaken = performance.now() - start;
     results["Quick Sort"] = timeTaken;
-    explain("quick", `Completed! Sorted Array: [${arr.join(", ")}] | Complexity: ${complexities["quick"]} | Time: ${timeTaken.toFixed(1)} ms`);
+
+    showResult("quick", "Quick Sort", timeTaken);
 }
 
 /* ================= RESULT ================= */
