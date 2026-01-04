@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Sorting Algorithm Race</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<h1>🏁 Sorting Algorithm Visualizer</h1>
+
+<div class="controls">
+    <input id="inputArray" placeholder="Example: 5,3,8,1,4">
+    <button onclick="startRace()">▶ Start</button>
+    <button onclick="togglePause()">⏸ Play / Pause</button>
+
+    <label>
+        Speed
+        <input type="range" min="100" max="1000" value="400" id="speedControl">
+    </label>
+</div>
+
+
+<div id="winner"></div>
+
+<div class="race">
+
+    <div class="algo">
+        <h3>Bubble Sort</h3>
+        <div class="bars" id="bubble"></div>
+        <div class="progress-bar"><div id="bubbleProg"></div></div>
+        <p class="explain" id="bubbleExplain"></p>
+    </div>
+
+    <div class="algo">
+        <h3>Selection Sort</h3>
+        <div class="bars" id="selection"></div>
+        <div class="progress-bar"><div id="selectionProg"></div></div>
+        <p class="explain" id="selectionExplain"></p>
+    </div>
+
+    <div class="algo">
+        <h3>Insertion Sort</h3>
+        <div class="bars" id="insertion"></div>
+        <div class="progress-bar"><div id="insertionProg"></div></div>
+        <p class="explain" id="insertionExplain"></p>
+    </div>
+
+    <div class="algo">
+        <h3>Merge Sort</h3>
+        <div class="bars" id="merge"></div>
+        <div class="progress-bar"><div id="mergeProg"></div></div>
+        <p class="explain" id="mergeExplain"></p>
+    </div>
+
+    <div class="algo">
+        <h3>Quick Sort</h3>
+        <div class="bars" id="quick"></div>
+        <div class="progress-bar"><div id="quickProg"></div></div>
+        <p class="explain" id="quickExplain"></p>
+    </div>
+
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
