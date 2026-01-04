@@ -29,8 +29,11 @@ input, button {
 .bars {
     display: flex;
     align-items: flex-end;
-    height: 120px;
+    height: 140px;          /* fixed safe height */
+    overflow: hidden;      /* 🚫 bars never go outside */
+    padding-bottom: 5px;
 }
+
 
 .bar {
     width: 25px;
